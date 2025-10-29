@@ -151,5 +151,8 @@ public class Patient extends Thread {
 	public void run() {
 		// TODO
 	}
-
+	// Pregunta 1.3 a) La flecha del diagrama significa que la clase Patient extiende la clase Threads
+	// Además de los getX, setX, , equals() y toString(), presenta también el método run(), que sirve para
+	// trabajar con varias tareas al mismo tiempo. Es de la clase Thread
+	// c) Se ejecutarán concurrentemente los objetos de la clase Patient, en este casodel protocolo y la posición del pacientel
 }

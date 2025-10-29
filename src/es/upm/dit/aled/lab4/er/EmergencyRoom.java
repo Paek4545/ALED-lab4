@@ -89,27 +89,27 @@ public class EmergencyRoom {
 		while (in.hasNext()) {
 			String tipo = in.next();
 			if (tipo.equals("AREA")) {
-				int x = in.nextInt();
-				int y = in.nextInt();
-				int time = in.nextInt();
-				String name = in.next().trim();
-				Area area = new Area(name, time, new Position2D(x, y));
+				int x = in.nextInt(); // Posición del paciente en x
+				int y = in.nextInt();	// Posición del paciente en y
+				int time = in.nextInt();	// Tiempo que tarda el paciente en moverse al área de emergencia
+				String name = in.next().trim();	// Obtenemos el nombre del paciente
+				Area area = new Area(name, time, new Position2D(x, y));	// Nos creamos el objeto de área
 				// Assign a random-ish color for visualization
 				area.setColor(Color.getHSBColor(rand.nextFloat(), 0.3f, 0.9f));
 				areas.put(name, area);
 			} else if (tipo.equals("PATIENT")) {
-				int id = in.nextInt();
-				Area initial = areas.get(in.next());
-				Patient patient = new Patient(id, initial);
+				int id = in.nextInt();	// Obtenemos el número del paciente
+				Area initial = areas.get(in.next());	// Obtenemos el área inicial donde se encuentra el paciente
+				Patient patient = new Patient(id, initial);	// Nos creamos un nuevo paciente
 				// Assign a random-ish color for visualization
 				patient.setColor(Color.getHSBColor(rand.nextFloat(), 1.0f, 0.8f));
 				patients.put(id, patient);
 			} else if (tipo.equals("TRANSFER")) {
-				int patientId = in.nextInt();
-				String areaName = in.next();
-				int time = in.nextInt();
-				Transfer transfer = new Transfer(areas.get(areaName), time);
-				patients.get(patientId).addToProtocol(transfer);
+				int patientId = in.nextInt();	// Id (number) del paciente
+				String areaName = in.next();	// Nombre del área al que lo vamos a transferir
+				int time = in.nextInt();		// Tiempo que se tarda en transferirse al área siguiente
+				Transfer transfer = new Transfer(areas.get(areaName), time); // Nos creamos el objeto de transferencia
+				patients.get(patientId).addToProtocol(transfer);	// Transferimos al paciente con el ID concreto que sigue los protocolos anteriores
 			} else {
 				System.err.println("Error in input file. Unknown type: " + tipo);
 			}
