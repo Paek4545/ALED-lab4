@@ -138,19 +138,21 @@ public class Patient extends Thread {
  		3. Avanzar el protocolo hasta el siguiente paso
 	 */
 	private void advanceProtocol() {
+		// En caso de que todo el protocolo sea mayor que su índice, podemos transferir el paciente al siguiente 
+		// Area
 		if (indexProtocol < protocol.size()) {
-			// Obtenemos el siguiente Transfer:
 			Transfer nextTransfer = protocol.get(indexProtocol);
 			
-			// Animamos el movimiento utilizando la GUI:
+			// Animamos a los pacientes (puntos)
 			EmergencyRoomGUI gui = EmergencyRoomGUI.getInstance();
-			gui.animateTransfer(this, nextTransfer);
+			gui.animateTransfer(this, nextTransfer); //this --> ESTE paciente 
 			
-			// Cambiamos la ubicación actual del paciente:
-			setLocation(nextTransfer.getTo());
+			// Cambiamos la ubicación del paciente
+			setLocation(nextTransfer.getTo()); // getTo es un método de la clase Patient al igual que setLocation (Area area)
 			
-			// Avanzamos el protocolo hasta el siguiente paso:
+			// Avanzamos el protocolo hasta el siguiente paso
 			indexProtocol++;
+			
 		}
 		
 	}
@@ -171,12 +173,10 @@ public class Patient extends Thread {
 		
 		// El paciente espera en el tiempo correspondiente de su área actual
 	try {
-		Thread.sleep(location.getTime());
+		sleep(location.getTime());
 	} catch (InterruptedException e) {
 		e.printStackTrace();
 	}
-		
-		
 	}
 
 	/**
@@ -197,16 +197,16 @@ public class Patient extends Thread {
 	 */
 	@Override
 	public void run() {
-		// 3. Vuelta al punto
+		// Volvemos al punto 1 con un bucle:
 		while(indexProtocol < protocol.size()) {
-			// 1. Ser atendido en la ubicación actual:
+			// Ser atendido en la ubicación actual: 
 			attendedAtLocation();
 			
-			// 2. Avanzamos al siguiente paso en su protocolo:
+			// Avanzar al siguiente paso en su protocolo:
 			advanceProtocol();
+			
 		}
-		
-		// Una vez atendido en la última ubicación, eliminamos el paciente de la GUI:
+		// Cuando termine este bucle, eliminamos a los pacientes:
 		EmergencyRoomGUI gui = EmergencyRoomGUI.getInstance();
 		gui.removePatient(this);
 		
