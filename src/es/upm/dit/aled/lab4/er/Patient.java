@@ -129,8 +129,30 @@ public class Patient extends Thread {
 	 * Advances the Patient's protocol. The Patient is moved to the new Area, the
 	 * movement is animated by the GUI and the index is increased by one.
 	 */
+	/*
+	 *  Avanzar al siguiente paso en su protocolo: Este comportamiento se produce en el
+ 		interior del método advanceProtocol(). Se compone de los siguientes pasos:
+ 		1. Pedir a la interfaz gráfica EmergencyRoomGUI que ejecute una animación que lleve el
+ 		punto que representa al paciente hasta su nueva ubicación.
+ 		2. Cambiar la ubicación actual del paciente.
+ 		3. Avanzar el protocolo hasta el siguiente paso
+	 */
 	private void advanceProtocol() {
-		// TODO
+		if (indexProtocol < protocol.size()) {
+			// Obtenemos el siguiente Transfer:
+			Transfer nextTransfer = protocol.get(indexProtocol);
+			
+			// Animamos el movimiento utilizando la GUI:
+			EmergencyRoomGUI gui = EmergencyRoomGUI.getInstance();
+			gui.animateTransfer(this, nextTransfer);
+			
+			// Cambiamos la ubicación actual del paciente:
+			setLocation(nextTransfer.getTo());
+			
+			// Avanzamos el protocolo hasta el siguiente paso:
+			indexProtocol++;
+		}
+		
 	}
 
 	/**
@@ -138,8 +160,23 @@ public class Patient extends Thread {
 	 * the Patient must spend at this method the amount of time specified in such
 	 * Area.
 	 */
+	/*
+	 * Los pacientes deben ser atendidos en la ubicación en la que se encuentran: Este comportamiento se
+ 	produce en el interior del método attendedAtLocation(), y es muy sencillo: el paciente
+ 	simplemente tiene que esperar el tiempo correspondiente al Area en la que se encuentre en
+ 	ese momento.
+ 
+	 */
 	private void attendedAtLocation() {
-		// TODO
+		
+		// El paciente espera en el tiempo correspondiente de su área actual
+	try {
+		Thread.sleep(location.getTime());
+	} catch (InterruptedException e) {
+		e.printStackTrace();
+	}
+		
+		
 	}
 
 	/**
@@ -147,9 +184,32 @@ public class Patient extends Thread {
 	 * at the current location and then moving onto the next, until the last step of
 	 * the protocol is reached. At that point, the Patient is removed from the GUI.
 	 */
+	/*
+	 * Este método es el que se ejecuta cuando alguien arranca las hebras de los pacientes y, por tanto, deberá utilizar
+	 *  los métodos que acaba de programar para representar el comportamiento de un paciente, que será el siguiente: 
+	 *  1. Ser atendido en la ubicación actual. 
+	 *  2. Avanzar al siguiente paso en su protocolo. 
+	 *  3. Vuelta al punto 
+	 *  
+	 *  Este proceso termina cuando se ha llegado al último paso del protocolo. Tras ser atendido en esta última 
+	 *  localización, el paciente deberá pedir a EmergencyRoomGUI que lo elimine, para que el punto que 
+	 *  representa al paciente desaparezca de la pantalla.
+	 */
 	@Override
 	public void run() {
-		// TODO
+		// 3. Vuelta al punto
+		while(indexProtocol < protocol.size()) {
+			// 1. Ser atendido en la ubicación actual:
+			attendedAtLocation();
+			
+			// 2. Avanzamos al siguiente paso en su protocolo:
+			advanceProtocol();
+		}
+		
+		// Una vez atendido en la última ubicación, eliminamos el paciente de la GUI:
+		EmergencyRoomGUI gui = EmergencyRoomGUI.getInstance();
+		gui.removePatient(this);
+		
 	}
 	// Pregunta 1.3 a) La flecha del diagrama significa que la clase Patient extiende la clase Threads
 	// Además de los getX, setX, , equals() y toString(), presenta también el método run(), que sirve para

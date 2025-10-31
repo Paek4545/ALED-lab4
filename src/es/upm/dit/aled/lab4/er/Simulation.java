@@ -26,6 +26,8 @@ public class Simulation {
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found.");
 		}
+		// El primer argumento debe ser el nombre del archivo de datos del 
+		// servicio de urgencias, es decir: er_data.txt.
 	}
 
 	/**
