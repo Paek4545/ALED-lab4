@@ -135,6 +135,7 @@ public class EmergencyRoom {
 		try {
 			patient.join();
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 		
 	}

@@ -170,11 +170,11 @@ public class Patient extends Thread {
  
 	 */
 	private void attendedAtLocation() {
-		
 		// El paciente espera en el tiempo correspondiente de su área actual
 	try {
 		sleep(location.getTime());
 	} catch (InterruptedException e) {
+		Thread.currentThread().interrupt();
 		e.printStackTrace();
 	}
 	}
@@ -204,11 +204,18 @@ public class Patient extends Thread {
 			
 			// Avanzar al siguiente paso en su protocolo:
 			advanceProtocol();
-			
+			// Después de avanzar al último protocolo también se quedarán esperando3
+			try {
+				sleep(location.getTime());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		// Cuando termine este bucle, eliminamos a los pacientes:
 		EmergencyRoomGUI gui = EmergencyRoomGUI.getInstance();
 		gui.removePatient(this);
+		
+		
 		
 	}
 	// Pregunta 1.3 a) La flecha del diagrama significa que la clase Patient extiende la clase Threads

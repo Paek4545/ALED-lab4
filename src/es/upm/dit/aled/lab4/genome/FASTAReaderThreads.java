@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -115,8 +116,33 @@ public class FASTAReaderThreads {
 	 *         pattern in the data.
 	 */
 	public List<Integer> search(byte[] pattern) {
-		// TODO
-		return null;
+		int cores = Runtime.getRuntime().availableProcessors();
+		ExecutorService executor = Executors.newFixedThreadPool(cores);
+		int total = getValidBytes();
+		int chunks = (int) Math.ceil((double) total / cores); // aseguramos que no se pierda nada
+		  List<Future<List<Integer>>> futures = new ArrayList<>();
+		for (int i = 0; i < cores; i++) {
+		    int lo = i * chunks;
+		    int hi = Math.min(total, lo + chunks); // nunca sobrepasar total
+			Callable<List<Integer>> tarea = new FASTASearchCallable(this, lo, hi, pattern);
+			Future<List<Integer>> resultadoFuturo = executor.submit(tarea);
+			futures.add(resultadoFuturo);
+		}
+		// Lista final con todos los resultados combinados
+	    List<Integer> resultado = new ArrayList<>();
+
+	    // Esperar a que todas las tareas terminen y combinar resultados
+	    for (Future<List<Integer>> f : futures) {
+	        try {    
+	            List<Integer> parcial = f.get();
+	            resultado.addAll(parcial);
+	        } catch (InterruptedException | ExecutionException e) {
+	            System.err.println("Error al obtener resultados de una tarea: " + e.getMessage());
+	        }
+	    }
+
+		 executor.shutdown();
+			return resultado;
 	}
 
 	public static void main(String[] args) {

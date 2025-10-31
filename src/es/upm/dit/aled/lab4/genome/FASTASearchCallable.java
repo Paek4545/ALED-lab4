@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import es.upm.dit.aled.lab3.FASTAException;
+
 /**
  * Callable task that performs a linear search over a specific section of a
  * byte[] array containing a genome. It looks for a specific pattern and returns
@@ -31,7 +33,10 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 * @param pattern The pattern to be found.
 	 */
 	public FASTASearchCallable(FASTAReaderThreads reader, int lo, int hi, byte[] pattern) {
-		// TODO
+		this.reader = reader;
+		this.lo= lo;
+		this.hi = hi;
+		this.pattern = pattern;
 	}
 
 	/**
@@ -44,10 +49,22 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 */
 	@Override
 	public List<Integer> call() throws Exception {
-		// TODO
-		return null;
+		// Creamos la lista de posiciones a devolver (inicialmente vacía)
+	List<Integer> positions = new ArrayList<Integer>();
+		// Recorremos hasta la posición máxima, en este caso será hasta position <= validBytes - pattern.lenght
+	for (int i = lo; i <  hi - pattern.length; i++) {
+		// Comparamos las cadenas:
+		try {
+			if (compare(pattern, i)) {
+			// Si al comparar, son iguales, añadimos a las posiciones los elementos (nucleótidos en este caso)
+				positions.add(i);
+			}
+		} catch (FASTAException e) {
+			e.printStackTrace();
+		}
 	}
-
+	return positions;
+	}
 	/*
 	 * Helper method that checks if a pattern appears at a specific position in the
 	 * data array. It checks every byte of the pattern one by one, but stops
