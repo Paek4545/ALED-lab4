@@ -116,35 +116,47 @@ public class FASTAReaderThreads {
 	 *         pattern in the data.
 	 */
 	public List<Integer> search(byte[] pattern) {
+		// Número de núcleos: en mi caso son 8
 		int cores = Runtime.getRuntime().availableProcessors();
+		//  Creamos un pool de hilos con tantos hilos como núcleos disponibles
 		ExecutorService executor = Executors.newFixedThreadPool(cores);
+		// Calculamos los bytes totales
 		int total = getValidBytes();
-		int chunks = (int) Math.ceil((double) total / cores); // aseguramos que no se pierda nada
+		// Dividimos las tareas en diferentes bloques en función de los núcleos del sistema
+		int chunks = total / cores; //Suponemos que el número de núcleos nunca es de 0
+		// Lista donde se almacenarán los futuros resultados de cada hilo
 		  List<Future<List<Integer>>> futures = new ArrayList<>();
+		  // Nos recorremos todos lo núcleos --> Asignamos cada tarea a un núcleo distinto
 		for (int i = 0; i < cores; i++) {
+		// Calculamos el mínimo y el máximo
+			// Siendo lo el Índice inicial del bloque asignado al hilo
 		    int lo = i * chunks;
-		    int hi = Math.min(total, lo + chunks); // nunca sobrepasar total
+		    // y siendo hi el índice final del bloque asociado al hilo
+		    int hi =  lo + chunks; 
+		 // Creamos la tarea de búsqueda para este rango
 			Callable<List<Integer>> tarea = new FASTASearchCallable(this, lo, hi, pattern);
+			// Envíamos la tarea al executor y guardamos el resultado futuro
 			Future<List<Integer>> resultadoFuturo = executor.submit(tarea);
 			futures.add(resultadoFuturo);
 		}
 		// Lista final con todos los resultados combinados
 	    List<Integer> resultado = new ArrayList<>();
 
-	    // Esperar a que todas las tareas terminen y combinar resultados
+	    // Esperar a que todas las tareas parciales terminen y cagregamos los diferentes resultados
 	    for (Future<List<Integer>> f : futures) {
 	        try {    
 	            List<Integer> parcial = f.get();
 	            resultado.addAll(parcial);
 	        } catch (InterruptedException | ExecutionException e) {
-	            System.err.println("Error al obtener resultados de una tarea: " + e.getMessage());
+	        	e.printStackTrace();
 	        }
 	    }
-
+	        // Cerramos el pool de hilos
 		 executor.shutdown();
+		 // Devolvemos la lista completa con todas las posiciones encontradas
 			return resultado;
+	
 	}
-
 	public static void main(String[] args) {
 		long t1 = System.nanoTime();
 		FASTAReaderThreads reader = new FASTAReaderThreads(args[0]);
