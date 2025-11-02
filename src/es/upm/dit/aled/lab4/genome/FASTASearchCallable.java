@@ -48,12 +48,13 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 *         pattern in the segment of content to be searched.
 	 */
 	@Override
-	public List<Integer> call() throws Exception {
-		// Creamos la lista de posiciones a devolver (inicialmente vacía)
+		public List<Integer> call() throws Exception {
+		   // Lista donde se almacenarán las posiciones iniciales donde se encuentra el patrón
 	List<Integer> positions = new ArrayList<Integer>();
-		// Recorremos hasta la posición máxima, en este caso será hasta position <= validBytes - pattern.lenght
-	for (int i = lo; i <  hi - pattern.length; i++) {
-		// Comparamos las cadenas:
+	// Recorremos el segmento asignado, desde 'lo' hasta 'hi', deteniéndose antes del final para evitar desbordar 
+	//el patrón. Es decir, el índice máximo válido es (hi - pattern.length)
+	for (int i = lo; i <=  hi - pattern.length; i++) {
+		// Comparamos las cadenas, empezando por la posición 'i'
 		try {
 			if (compare(pattern, i)) {
 			// Si al comparar, son iguales, añadimos a las posiciones los elementos (nucleótidos en este caso)
@@ -63,6 +64,7 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 			e.printStackTrace();
 		}
 	}
+	// Devuelve la lista de posiciones donde se encontró el patrón en este segmento
 	return positions;
 	}
 	/*
